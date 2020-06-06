@@ -5,11 +5,11 @@
 # Copyright (c) 2017 Ansible Project
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
     name: openstack
     plugin_type: inventory
     author:
@@ -104,15 +104,15 @@ DOCUMENTATION = '''
             description: Add hosts to group based on Jinja2 conditionals.
             type: dictionary
             default: {}
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 # file must be named openstack.yaml or openstack.yml
 # Make the plugin behave like the default behavior of the old script
 plugin: openstack
 expand_hostvars: yes
 fail_on_errors: yes
-'''
+"""
 
 import collections
 import sys
@@ -123,15 +123,16 @@ from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cachea
 from ansible.utils.display import Display
 
 display = Display()
-os_logger = logging.getLogger('openstack')
+os_logger = logging.getLogger("openstack")
 
 try:
     # Due to the name shadowing we should import other way
     import importlib
-    sdk = importlib.import_module('openstack')
-    sdk_inventory = importlib.import_module('openstack.cloud.inventory')
-    client_config = importlib.import_module('openstack.config.loader')
-    sdk_exceptions = importlib.import_module('openstack.exceptions')
+
+    sdk = importlib.import_module("openstack")
+    sdk_inventory = importlib.import_module("openstack.cloud.inventory")
+    client_config = importlib.import_module("openstack.config.loader")
+    sdk_exceptions = importlib.import_module("openstack.exceptions")
 except ImportError:
     error_msg = "Couldn't import Openstack SDK modules"
     display.error(error_msg)
@@ -139,9 +140,9 @@ except ImportError:
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
-    ''' Host inventory provider for ansible using OpenStack clouds. '''
+    """ Host inventory provider for ansible using OpenStack clouds. """
 
-    NAME = 'openstack-inventory'
+    NAME = "openstack-inventory"
 
     def parse(self, inventory, loader, path, cache=True):
 
@@ -167,29 +168,30 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         self._verify_config_data(self._config_data)
 
-        if 'clouds' in self._config_data:
-            self.display.verbose("Found clouds config file instead of plugin config. "
-                                 "Using default configuration.")
+        if "clouds" in self._config_data:
+            self.display.verbose(
+                "Found clouds config file instead of plugin config. "
+                "Using default configuration."
+            )
             self._config_data = {}
 
-        self.expand_hostvars = self._config_data.get('expand_hostvars', False)
-        self.fail_on_errors = self._config_data.get('fail_on_errors', False)
-        self.show_all = self._config_data.get('show_all', False)
+        self.expand_hostvars = self._config_data.get("expand_hostvars", False)
+        self.fail_on_errors = self._config_data.get("fail_on_errors", False)
+        self.show_all = self._config_data.get("show_all", False)
 
         sdk.enable_logging(
-            debug=self._config_data.get('debug', False),
-            stream=sys.stderr
+            debug=self._config_data.get("debug", False), stream=sys.stderr
         )
 
     def _verify_config_data(self, data):
 
-        error_msg = ''
+        error_msg = ""
 
         if not data:
-            error_msg = 'Config file is empty.'
-        elif 'plugin' in data and data['plugin'] != self.NAME:
-            error_msg = 'Incorrect plugin config found: %s' % data['plugin']
-        elif 'plugin' not in data and 'clouds' not in data:
+            error_msg = "Config file is empty."
+        elif "plugin" in data and data["plugin"] != self.NAME:
+            error_msg = "Incorrect plugin config found: %s" % data["plugin"]
+        elif "plugin" not in data and "clouds" not in data:
             error_msg = "Missing plugin and clouds configuration"
         elif not self._verify_config_data_types(data):
             error_msg = "Invalid config data type"
@@ -200,32 +202,32 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _verify_config_data_types(self, data):
 
-        clouds_yaml_path = data.get('clouds_yaml_path')
+        clouds_yaml_path = data.get("clouds_yaml_path")
         if clouds_yaml_path and not isinstance(clouds_yaml_path, list):
             self.display.error("clouds_yaml_path must be a valid YAML list")
             return False
 
-        debug = data.get('debug')
+        debug = data.get("debug")
         if debug and not isinstance(debug, bool):
             self.display.error("debug must be a valid YAML boolean")
             return False
 
-        expand_hostvars = data.get('expand_hostvars')
+        expand_hostvars = data.get("expand_hostvars")
         if expand_hostvars and not isinstance(expand_hostvars, bool):
             self.display.error("expand_hostvars must be a valid YAML boolean")
             return False
 
-        fail_on_errors = data.get('fail_on_errors')
+        fail_on_errors = data.get("fail_on_errors")
         if fail_on_errors and not isinstance(fail_on_errors, bool):
             self.display.error("fail_on_errors must be a valid YAML boolean")
             return False
 
-        only_clouds = data.get('only_clouds')
+        only_clouds = data.get("only_clouds")
         if only_clouds and not isinstance(only_clouds, list):
             self.display.error("only_clouds must be a valid YAML list")
             return False
 
-        show_all = data.get('show_all')
+        show_all = data.get("show_all")
         if show_all and not isinstance(show_all, bool):
             self.display.error("show_all must be a valid YAML boolean")
             return False
@@ -233,6 +235,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         return True
 
     def _load_cache(self, cache_key):
+
         self.display.verbose("Reaading inventory data from cache: %s" % cache_key)
         cache_data = None
         try:
@@ -243,7 +246,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_hosts_from_openstack(self):
 
-        self.display.verbose('Getting hosts from Openstack clouds')
+        self.display.verbose("Getting hosts from Openstack clouds")
 
         os_clouds_inventory = self._get_openstack_clouds_inventory(
             self._get_openstack_config_files_list()
@@ -252,8 +255,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         hosts_data = []
         try:
             hosts_data = os_clouds_inventory.list_hosts(
-                expand=self.expand_hostvars,
-                fail_on_cloud_config=self.fail_on_errors
+                expand=self.expand_hostvars, fail_on_cloud_config=self.fail_on_errors
             )
         except sdk_exceptions.OpenStackCloudException as e:
             os_logger.error("Couldn't list Openstack hosts : %s" % e.message)
@@ -261,7 +263,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             return hosts_data
 
     def _get_openstack_config_files_list(self):
-        clouds_yaml_path = self._config_data.get('clouds_yaml_path')
+
+        clouds_yaml_path = self._config_data.get("clouds_yaml_path")
         if clouds_yaml_path:
             return clouds_yaml_path + client_config.CONFIG_FILES
         else:
@@ -269,18 +272,18 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_openstack_clouds_inventory(self, os_config_files_list):
 
-        only_clouds = self._config_data.get('only_clouds', None)
+        only_clouds = self._config_data.get("only_clouds", None)
 
         os_clouds_inventory = sdk_inventory.OpenStackInventory(
             config_files=os_config_files_list,
-            private=self._config_data.get('private', False)
+            private=self._config_data.get("private", False),
         )
 
         selected_openstack_clouds = []
         if only_clouds:
             for cloud in os_clouds_inventory.clouds:
                 if cloud.name in only_clouds:
-                    self.display.verbose('Selecting cloud : %s' % cloud.name)
+                    self.display.verbose("Selecting cloud : %s" % cloud.name)
                     selected_openstack_clouds.append(cloud)
             os_clouds_inventory.clouds = selected_openstack_clouds
 
@@ -293,20 +296,19 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.hostvars = {}
 
         self._populate_inventory_hosts(hosts_data)
-        
+
         self._populate_inventory_variables()
         self._populate_inventory_groups()
 
     def _populate_inventory_hosts(self, hosts_data):
 
-        use_server_id = (
-                self._config_data.get('inventory_hostname', 'name') != 'name')
+        use_server_id = self._config_data.get("inventory_hostname", "name") != "name"
 
         # remove unreachable servers if show_all is False
         for server in hosts_data:
-            if 'interface_ip' not in server and not self.show_all:
+            if "interface_ip" not in server and not self.show_all:
                 continue
-            self.servers[server['name']].append(server)
+            self.servers[server["name"]].append(server)
 
         # add remaining servers data to inventory
         for name, server_data in self.servers.items():
@@ -316,32 +318,35 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 server_ids = set()
                 # Trap for duplicate results
                 for server in server_data:
-                    server_ids.add(server['id'])
+                    server_ids.add(server["id"])
                 if len(server_ids) == 1 and not use_server_id:
                     self._store_host_data(name, server_data[0])
                 else:
                     for data in server_data:
-                        self._store_host_data(data['id'], data, namegroup=True)
+                        self._store_host_data(data["id"], data, namegroup=True)
 
     def _store_host_data(self, host, server_data, namegroup=False):
 
         self.hostvars[host] = dict(
-            ansible_ssh_host=server_data['interface_ip'],
-            ansible_host=server_data['interface_ip'],
-            openstack=server_data)
+            ansible_ssh_host=server_data["interface_ip"],
+            ansible_host=server_data["interface_ip"],
+            openstack=server_data,
+        )
 
         self.inventory.add_host(host)
 
-        for group in self._get_group_names_from_server_data(server_data, namegroup=namegroup):
+        for group in self._get_group_names_from_server_data(
+            server_data, namegroup=namegroup
+        ):
             self.groups[group].append(host)
 
     def _get_group_names_from_server_data(self, server_data, namegroup=True):
 
         server_groups = []
 
-        region = server_data['region']
-        cloud = server_data['cloud']
-        metadata = server_data.get('metadata', {})
+        region = server_data["region"]
+        cloud = server_data["cloud"]
+        metadata = server_data.get("metadata", {})
 
         # Create a group on cloud
         server_groups.append(cloud)
@@ -354,53 +359,58 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         server_groups.append("%s_%s" % (cloud, region))
 
         # Create group on metadata group key
-        if 'group' in metadata:
-            server_groups.append(metadata['group'])
+        if "group" in metadata:
+            server_groups.append(metadata["group"])
 
         # Create group on every metadata group
-        for extra_group in metadata.get('groups', '').split(','):
+        for extra_group in metadata.get("groups", "").split(","):
             if extra_group:
                 server_groups.append(extra_group.strip())
 
         # Create group on instance id
-        server_groups.append('instance-%s' % server_data['id'])
+        server_groups.append("instance-%s" % server_data["id"])
 
         # Create group on instance name
         if namegroup:
-            server_groups.append(server_data['name'])
+            server_groups.append(server_data["name"])
 
         # Create group on flavor and image names
-        for key in ('flavor', 'image'):
-            if 'name' in server_data[key]:
-                server_groups.append('%s-%s' % (key, server_data[key]['name']))
+        for key in ("flavor", "image"):
+            if "name" in server_data[key]:
+                server_groups.append("%s-%s" % (key, server_data[key]["name"]))
 
         # Create group on every metadata
         for key, value in iter(metadata.items()):
-            server_groups.append('meta-%s_%s' % (key, value))
+            server_groups.append("meta-%s_%s" % (key, value))
 
-        az = server_data.get('az', None)
+        az = server_data.get("az", None)
         if az:
             # Make groups for az, region_az and cloud_region_az
             server_groups.append(az)
-            server_groups.append('%s_%s' % (region, az))
-            server_groups.append('%s_%s_%s' % (cloud, region, az))
+            server_groups.append("%s_%s" % (region, az))
+            server_groups.append("%s_%s_%s" % (cloud, region, az))
 
         return server_groups
 
     def _populate_inventory_variables(self):
+
         for host in self.hostvars:
             self._set_composite_vars(
-                self._config_data.get('compose'), self.hostvars[host], host)
-            for variable in self.hostvars[host]:
-                self.inventory.set_variable(host, variable, self.hostvars[host][variable])
+                self._config_data.get("compose"), self.hostvars[host], host
+            )
+
+        for variable in self.hostvars[host]:
+            self.inventory.set_variable(host, variable, self.hostvars[host][variable])
 
     def _populate_inventory_groups(self):
 
         for host in self.hostvars:
             self._add_host_to_composed_groups(
-                self._config_data.get('groups'), self.hostvars[host], host)
+                self._config_data.get("groups"), self.hostvars[host], host
+            )
             self._add_host_to_keyed_groups(
-                self._config_data.get('keyed_groups'), self.hostvars[host], host)
+                self._config_data.get("keyed_groups"), self.hostvars[host], host
+            )
 
         for group_name, hosts in self.groups.items():
             group = self.inventory.add_group(group_name)
@@ -409,9 +419,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def verify_file(self, path):
         if super(InventoryModule, self).verify_file(path):
-            for fn in ('openstack', 'clouds'):
-                for suffix in ('yaml', 'yml'):
-                    maybe = '{fn}.{suffix}'.format(fn=fn, suffix=suffix)
+            for fn in ("openstack", "clouds"):
+                for suffix in ("yaml", "yml"):
+                    maybe = "{fn}.{suffix}".format(fn=fn, suffix=suffix)
                     if path.endswith(maybe):
                         return True
         return False
