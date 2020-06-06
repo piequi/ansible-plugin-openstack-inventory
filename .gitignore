@@ -1,0 +1,5 @@
+/ansible.log
+/.cache/
+/clouds.yml
+/.idea/
+/__pycache__/
