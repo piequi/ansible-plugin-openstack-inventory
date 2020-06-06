@@ -1,0 +1,8 @@
+---
+plugin: openstack-inventory
+#clouds_yaml_path:
+#  - clouds.yml
+only_clouds:
+  - "Development"
+show_all: yes
+debug: no
