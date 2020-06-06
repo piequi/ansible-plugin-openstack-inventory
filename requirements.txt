@@ -9,3 +9,4 @@ cryptography
 packaging
 ansible
 openstacksdk
+pre-commit
