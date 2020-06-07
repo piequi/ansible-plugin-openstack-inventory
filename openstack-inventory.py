@@ -343,18 +343,20 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _store_host_data(self, host, server_data, namegroup=False):
 
-        self.hostvars[host] = dict(
-            ansible_ssh_host=server_data["interface_ip"],
-            ansible_host=server_data["interface_ip"],
-            openstack=server_data,
-        )
+        # filter clouds when reading from cache
+        if server_data["cloud"] in self.only_clouds:
+            self.inventory.add_host(host)
 
-        self.inventory.add_host(host)
+            self.hostvars[host] = dict(
+                ansible_ssh_host=server_data["interface_ip"],
+                ansible_host=server_data["interface_ip"],
+                openstack=server_data,
+            )
 
-        for group in self._get_group_names_from_server_data(
-            server_data, namegroup=namegroup
-        ):
-            self.groups[group].append(host)
+            for group in self._get_group_names_from_server_data(
+                server_data, namegroup=namegroup
+            ):
+                self.groups[group].append(host)
 
     def _get_group_names_from_server_data(self, server_data, namegroup=True):
 
