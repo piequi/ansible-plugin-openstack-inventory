@@ -263,7 +263,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         hosts_data = []
         try:
             hosts_data = os_clouds_inventory.list_hosts(
-                expand=self.expand_hostvars, fail_on_cloud_config=self.fail_on_errors
+                expand=self.expand_hostvars,
+                fail_on_cloud_config=self.fail_on_errors
             )
         except Exception as e:
             self.display.warning("Couldn't list Openstack hosts. "
@@ -311,7 +312,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.hostvars = {}
 
         self._populate_inventory_hosts(hosts_data)
-
         self._populate_inventory_variables()
         self._populate_inventory_groups()
 
@@ -410,11 +410,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         for host in self.hostvars:
             self._set_composite_vars(
-                self._config_data.get("compose"), self.hostvars[host], host
+                self._config_data.get("compose"),
+                self.hostvars[host],
+                host
             )
 
-        for variable in self.hostvars[host]:
-            self.inventory.set_variable(host, variable, self.hostvars[host][variable])
+            for variable in self.hostvars[host]:
+                self.inventory.set_variable(
+                    host,
+                    variable,
+                    self.hostvars[host][variable]
+                )
 
     def _populate_inventory_groups(self):
 
