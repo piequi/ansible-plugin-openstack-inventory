@@ -23,15 +23,19 @@ DOCUMENTATION = """
         - constructed
     description:
         - Get inventory hosts from OpenStack clouds
-        - Uses openstack.(yml|yaml) YAML configuration file to configure the inventory plugin
-        - Uses standard clouds.yaml YAML configuration file to configure cloud credentials
+        - Uses openstack.(yml|yaml) YAML configuration file to configure the
+            inventory plugin
+        - Uses standard clouds.yaml YAML configuration file to configure cloud
+            credentials
     options:
         plugin:
-            description: token that ensures this is a source file for the 'openstack' plugin.
+            description: token that ensures this is a source file for the
+                'openstack' plugin.
             required: True
             choices: ['openstack']
         show_all:
-            description: toggles showing all vms vs only those with a working IP
+            description: toggles showing all vms vs only those with a working
+                IP
             type: bool
             default: 'no'
         inventory_hostname:
@@ -55,7 +59,8 @@ DOCUMENTATION = """
                 information about the host. May interrogate cinder and
                 neutron and can be expensive for people with many hosts.
                 (Note, the default value of this is opposite from the default
-                old openstack-inventory.py inventory script's option expand_hostvars)
+                old openstack-inventory.py inventory script's option
+                expand_hostvars)
             type: bool
             default: 'no'
         private:
@@ -78,7 +83,8 @@ DOCUMENTATION = """
                 has failed (for example, bad credentials or being offline).
                 When set to False, the inventory will return as many hosts as
                 it can from as many clouds as it can contact. (Note, the
-                default value of this is opposite from the old openstack-inventory.py
+                default value of this is opposite from the old
+                openstack-inventory.py
                 inventory script's option fail_on_errors)
             type: bool
             default: 'no'
