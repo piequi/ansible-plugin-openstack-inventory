@@ -164,7 +164,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             hosts_data = self._load_cache(cache_key)
 
         if not hosts_data:
-            hosts_data = self._get_hosts_from_openstack()
+            hosts_data = self._get_hosts_data_from_openstack()
             self._cache[cache_key] = hosts_data
 
         self._populate_inventory(hosts_data)
@@ -251,7 +251,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             display.verbose("Inventory data cache not found")
         return cache_data
 
-    def _get_hosts_from_openstack(self):
+    def _get_hosts_data_from_openstack(self):
 
         self.display.verbose("Getting hosts from Openstack clouds")
 
