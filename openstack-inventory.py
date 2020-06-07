@@ -74,7 +74,8 @@ DOCUMENTATION = """
         only_clouds:
             description: |
                 List of clouds from clouds.yaml to use, instead of using
-                the whole list.
+                the whole list. Beware that it doesn't apply when using data
+                from inventory cache.
             type: list
             default: []
         fail_on_errors:
@@ -88,10 +89,6 @@ DOCUMENTATION = """
                 inventory script's option fail_on_errors)
             type: bool
             default: 'no'
-        debug:
-            description: |
-                Enable Openstack SDK debug messages. When set to True, debug
-                messages are sent to stderr.
         clouds_yaml_path:
             description: |
                 Override path to clouds.yaml file. If this value is given it
@@ -102,6 +99,10 @@ DOCUMENTATION = """
             type: list
             env:
                 - name: OS_CLIENT_CONFIG_FILE
+        debug:
+            description: |
+                Enable Openstack SDK debug messages. When set to True, debug
+                messages are sent to stderr.
         compose:
             description: Create vars from jinja2 expressions.
             type: dictionary
