@@ -325,7 +325,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 continue
             self.servers[server["name"]].append(server)
 
-        # add remaining servers data to inventory
+        # store remaining servers data in inventory
         for name, server_data in self.servers.items():
             if len(server_data) == 1 and not use_server_id:
                 self._store_host_data(name, server_data[0])
@@ -390,9 +390,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         for extra_group in metadata.get("groups", "").split(","):
             if extra_group:
                 server_groups.append(extra_group.strip())
-
-        # Create group on instance id
-        server_groups.append("instance-%s" % server_data["id"])
 
         # Create group on instance name
         if namegroup:
