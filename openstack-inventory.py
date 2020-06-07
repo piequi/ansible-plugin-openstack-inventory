@@ -369,12 +369,19 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         # Create a group on cloud
         server_groups.append(cloud)
 
-        # Create group on region
+        # Create groups on region
         if region:
             server_groups.append(region)
+            server_groups.append("%s_%s" % (cloud, region))
 
-        # Create group on cloud_region
-        server_groups.append("%s_%s" % (cloud, region))
+        # Create group on availability zone
+        az = server_data.get("az", None)
+        if az:
+            server_groups.append(az)
+            server_groups.append("%s_%s" % (cloud, az))
+            if region:
+                server_groups.append("%s_%s" % (region, az))
+                server_groups.append("%s_%s_%s" % (cloud, region, az))
 
         # Create group on metadata group key
         if "group" in metadata:
