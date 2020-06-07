@@ -185,6 +185,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.expand_hostvars = self._config_data.get("expand_hostvars", False)
         self.fail_on_errors = self._config_data.get("fail_on_errors", False)
         self.show_all = self._config_data.get("show_all", False)
+        self.only_clouds = self._config_data.get("only_clouds", None)
 
         sdk.enable_logging(
             debug=self._config_data.get("debug", False), stream=sys.stderr
@@ -282,8 +283,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_openstack_clouds_inventory(self, os_config_files_list):
 
-        only_clouds = self._config_data.get("only_clouds", None)
-
         os_clouds_inventory = sdk_inventory.OpenStackInventory(
             config_files=os_config_files_list,
             private=self._config_data.get("private", False),
@@ -291,8 +290,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.display.vv("Found %d cloud(s) in Openstack" %
                         len(os_clouds_inventory.clouds))
 
-        selected_openstack_clouds = []
-        if only_clouds:
+        if self.only_clouds:
+            selected_openstack_clouds = []
             for cloud in os_clouds_inventory.clouds:
                 self.display.vv("Looking at cloud : %s" % cloud.name)
                 if cloud.name in self.only_clouds:
