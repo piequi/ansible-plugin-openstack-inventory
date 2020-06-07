@@ -404,13 +404,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         for key, value in iter(metadata.items()):
             server_groups.append("meta-%s_%s" % (key, value))
 
-        az = server_data.get("az", None)
-        if az:
-            # Make groups for az, region_az and cloud_region_az
-            server_groups.append(az)
-            server_groups.append("%s_%s" % (region, az))
-            server_groups.append("%s_%s_%s" % (cloud, region, az))
-
         return server_groups
 
     def _populate_inventory_variables(self):
