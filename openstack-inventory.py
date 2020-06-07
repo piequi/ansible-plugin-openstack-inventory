@@ -395,10 +395,20 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if namegroup:
             server_groups.append(server_data["name"])
 
-        # Create group on flavor and image names
+        # Create group on flavor and image name or id
         for key in ("flavor", "image"):
             if "name" in server_data[key]:
-                server_groups.append("%s-%s" % (key, server_data[key]["name"]))
+                server_groups.append(
+                    "%s-%s" % (key, server_data[key]["name"])
+                )
+            elif "original_name" in server_data[key]:
+                server_groups.append(
+                    "%s-%s" % (key, server_data[key]["original_name"])
+                )
+            elif "id" in server_data[key]:
+                server_groups.append(
+                    "%s-%s" % (key, server_data[key]["id"])
+                )
 
         # Create group on every metadata
         for key, value in iter(metadata.items()):
