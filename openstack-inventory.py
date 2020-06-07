@@ -176,7 +176,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self._verify_config_data(self._config_data)
 
         if "clouds" in self._config_data:
-            self.display.verbose(
+            self.display.v(
                 "Found clouds config file instead of plugin config. "
                 "Using default configuration."
             )
@@ -243,17 +243,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _load_cache(self, cache_key):
 
-        self.display.verbose("Reaading inventory data from cache: %s" % cache_key)
+        self.display.v("Reaading inventory data from cache: %s" % cache_key)
         cache_data = None
         try:
             cache_data = self._cache[cache_key]
         except KeyError:
-            display.verbose("Inventory data cache not found")
+            display.v("Inventory data cache not found")
         return cache_data
 
     def _get_hosts_data_from_openstack(self):
 
-        self.display.verbose("Getting hosts from Openstack clouds")
+        self.display.v("Getting hosts from Openstack clouds")
 
         os_clouds_inventory = self._get_openstack_clouds_inventory(
             self._get_openstack_config_files_list()
@@ -264,9 +264,12 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             hosts_data = os_clouds_inventory.list_hosts(
                 expand=self.expand_hostvars, fail_on_cloud_config=self.fail_on_errors
             )
-        except sdk_exceptions.OpenStackCloudException as e:
-            os_logger.error("Couldn't list Openstack hosts : %s" % e.message)
+        except Exception as e:
+            self.display.warning("Couldn't list Openstack hosts. "
+                                 "See logs for details")
+            os_logger.error(e.message)
         finally:
+            self.display.vv("Found %d host(s)" % len(hosts_data))
             return hosts_data
 
     def _get_openstack_config_files_list(self):
@@ -285,14 +288,20 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             config_files=os_config_files_list,
             private=self._config_data.get("private", False),
         )
+        self.display.vv("Found %d cloud(s) in Openstack" %
+                        len(os_clouds_inventory.clouds))
 
         selected_openstack_clouds = []
         if only_clouds:
             for cloud in os_clouds_inventory.clouds:
-                if cloud.name in only_clouds:
-                    self.display.verbose("Selecting cloud : %s" % cloud.name)
+                self.display.vv("Looking at cloud : %s" % cloud.name)
+                if cloud.name in self.only_clouds:
+                    self.display.vv("Selecting cloud : %s" % cloud.name)
                     selected_openstack_clouds.append(cloud)
             os_clouds_inventory.clouds = selected_openstack_clouds
+
+        self.display.vv("Selected %d cloud(s)" %
+                        len(os_clouds_inventory.clouds))
 
         return os_clouds_inventory
 
@@ -430,5 +439,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 for suffix in ("yaml", "yml"):
                     maybe = "{fn}.{suffix}".format(fn=fn, suffix=suffix)
                     if path.endswith(maybe):
+                        self.display.v("Valid plugin config file found")
                         return True
         return False
