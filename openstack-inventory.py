@@ -410,6 +410,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                     "%s-%s" % (key, server_data[key]["id"])
                 )
 
+        # Create group on every security groups
+        for security_group in server_data["security_groups"]:
+            server_groups.append("secgroup-%s" % security_group["name"])
+
         # Create group on every metadata
         for key, value in iter(metadata.items()):
             server_groups.append("meta-%s_%s" % (key, value))
