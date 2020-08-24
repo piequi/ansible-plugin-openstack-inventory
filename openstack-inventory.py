@@ -346,9 +346,11 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if server_data["cloud"] in self.only_clouds:
             self.inventory.add_host(host)
 
+            host_access_ip = self._get_access_ip_for_server(server_data, host)
+
             self.hostvars[host] = dict(
-                ansible_ssh_host=server_data["interface_ip"],
-                ansible_host=server_data["interface_ip"],
+                ansible_ssh_host=host_access_ip,
+                ansible_host=host_access_ip,
                 openstack=server_data,
             )
 
@@ -356,6 +358,21 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 server_data, namegroup=namegroup
             ):
                 self.groups[group].append(host)
+
+    def _get_access_ip_for_server(self, server_data, host):
+
+        fields_containing_ip = [
+            "interface_ip",
+            "accessIPv4",
+            "public_v4",
+            "private_v4",
+            "accessIPv6",
+            "public_v6"
+        ]
+
+        return next(
+            (server_data[field] for field in fields_containing_ip if server_data[field] != ""),
+            "")
 
     def _get_group_names_from_server_data(self, server_data, namegroup=True):
 
